@@ -9,6 +9,8 @@ export default function Home() {
   const [data, setData] = useState<any[]>([]);
   const [tank, setTank] = useState("All");
   const [timeRange, setTimeRange] = useState("all");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
 
   useEffect(() => {
     fetchTankData().then(setData);
@@ -17,16 +19,42 @@ export default function Home() {
   if (!data.length) return <p className="p-6">Loading...</p>;
 
   const now = new Date();
+  const isCustomRangeInvalid =
+    timeRange === "custom" &&
+    customStartDate !== "" &&
+    customEndDate !== "" &&
+    new Date(customStartDate).getTime() > new Date(customEndDate).getTime();
 
   const filteredByTank =
     tank === "All" ? data : data.filter((d) => d.tank_name === tank);
 
   const filteredData = filteredByTank.filter((d) => {
+    const dataPointTime = new Date(d.start_time).getTime();
+
+    if (Number.isNaN(dataPointTime)) return false;
+
     if (timeRange === "4d") {
-      return now.getTime() - new Date(d.start_time).getTime() <= 4 * 86400000;
+      return now.getTime() - dataPointTime <= 4 * 86400000;
     }
     if (timeRange === "7d") {
-      return now.getTime() - new Date(d.start_time).getTime() <= 7 * 86400000;
+      return now.getTime() - dataPointTime <= 7 * 86400000;
+    }
+    if (timeRange === "custom") {
+      if (isCustomRangeInvalid) return false;
+
+      if (customStartDate !== "") {
+        const customStart = new Date(customStartDate);
+        customStart.setHours(0, 0, 0, 0);
+        if (dataPointTime < customStart.getTime()) return false;
+      }
+
+      if (customEndDate !== "") {
+        const customEnd = new Date(customEndDate);
+        customEnd.setHours(23, 59, 59, 999);
+        if (dataPointTime > customEnd.getTime()) return false;
+      }
+
+      return true;
     }
     return true;
   });
@@ -53,10 +81,45 @@ export default function Home() {
           ))}
         </select>
 
-        <button onClick={() => setTimeRange("all")}>All</button>
-        <button onClick={() => setTimeRange("4d")}>4 Days</button>
-        <button onClick={() => setTimeRange("7d")}>7 Days</button>
+        <select
+          value={timeRange}
+          onChange={(e) => setTimeRange(e.target.value)}
+          className="border p-2"
+        >
+          <option value="all">All</option>
+          <option value="4d">4 Days</option>
+          <option value="7d">7 Days</option>
+          <option value="custom">Custom</option>
+        </select>
       </div>
+
+      {timeRange === "custom" && (
+        <div className="mt-3 flex flex-wrap gap-3 items-center">
+          <label className="flex items-center gap-2">
+            <span>From</span>
+            <input
+              type="date"
+              value={customStartDate}
+              onChange={(e) => setCustomStartDate(e.target.value)}
+              className="border p-2"
+            />
+          </label>
+
+          <label className="flex items-center gap-2">
+            <span>To</span>
+            <input
+              type="date"
+              value={customEndDate}
+              onChange={(e) => setCustomEndDate(e.target.value)}
+              className="border p-2"
+            />
+          </label>
+
+          {isCustomRangeInvalid && (
+            <p className="text-sm text-red-600">End date must be on or after start date.</p>
+          )}
+        </div>
+      )}
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 mt-6">
