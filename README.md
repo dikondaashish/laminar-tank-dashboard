@@ -1,2 +1,3 @@
-# laminar-tank-dashboard
-Analytics dashboard for tank operations with filtering, KPIs, and visualization (Next.js + TypeScript)
+# Tank Dashboard
+
+A simple analytics dashboard for tank operations.
