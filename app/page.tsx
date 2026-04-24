@@ -123,11 +123,11 @@ export default function Home() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 mt-6">
-        <div>Total Water: {kpis.totalWater}</div>
-        <div>Total Energy: {kpis.totalEnergy}</div>
-        <div>Water Saved: {kpis.waterSaved}</div>
-        <div>Energy Saved: {kpis.energySaved}</div>
-        <div>Avg Duration: {kpis.avgDuration.toFixed(2)}</div>
+        <div>Total Water (gal): {kpis.totalWater}</div>
+        <div>Total Energy (kWh): {kpis.totalEnergy}</div>
+        <div>Water Saved (gal): {kpis.waterSaved}</div>
+        <div>Energy Saved (kWh): {kpis.energySaved}</div>
+        <div>Avg Duration (sec): {kpis.avgDuration.toFixed(2)}</div>
         <div>Efficiency: {kpis.efficiency.toFixed(2)}%</div>
       </div>
 
